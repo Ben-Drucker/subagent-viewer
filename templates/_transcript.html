@@ -1,0 +1,51 @@
+{% if not turns %}
+<div class="empty">No entries yet.</div>
+{% endif %}
+{% for turn in turns %}
+<div class="turn role-{{ turn.role }}">
+  <div class="turn-content">
+  {% for b in turn.blocks %}
+    {% if b.kind == 'text' %}
+      <details class="text-card {{ 'kind-user' if turn.role == 'user' else 'kind-output' }}" data-key="{{ b.id }}" open>
+        <summary><span class="text-preview">{{ b.preview }}</span></summary>
+        <div class="text-block markdown-body">{{ b.html }}</div>
+      </details>
+    {% elif b.kind == 'thinking' %}
+      <details class="thinking-card" data-key="{{ b.id }}">
+        <summary><span class="thinking-preview">{{ b.preview }}</span></summary>
+        <div class="thinking-body markdown-body">{{ b.html }}</div>
+      </details>
+    {% elif b.kind == 'tool' %}
+      <details class="tool-card{{ ' error' if b.is_error else '' }}{{ ' pending' if b.pending else '' }}" data-key="{{ b.id }}">
+        <summary>
+          <span class="tool-name">{{ b.name }}</span>
+          {% if b.short %}<span class="tool-short">{{ b.short }}</span>{% endif %}
+          {% if b.pending %}<span class="pending-tag">running&hellip;</span>{% endif %}
+          {% if b.is_error %}<span class="error-tag">error</span>{% endif %}
+        </summary>
+        <div class="tool-body">
+          {% if b.is_bash %}
+          <div class="tool-section">
+            <div class="tool-label">Command</div>
+            <pre>{{ b.command }}</pre>
+          </div>
+          {% else %}
+          <div class="tool-section">
+            <div class="tool-label">Input</div>
+            <pre>{{ b.input }}</pre>
+          </div>
+          {% endif %}
+          {% if b.output is not none %}
+          <div class="tool-section">
+            <div class="tool-label">Output</div>
+            <pre>{{ b.output }}</pre>
+          </div>
+          {% endif %}
+        </div>
+      </details>
+    {% endif %}
+  {% endfor %}
+  </div>
+  <span class="ts">{{ turn.rel_time }}</span>
+</div>
+{% endfor %}
